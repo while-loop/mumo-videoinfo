@@ -74,6 +74,8 @@ class videoinfo(MumoModule):
     #
     def userTextMessage(self, server, user, message, current=None):
         msg = message.text.strip()
+        
+        # http://stackoverflow.com/a/6904504
         idRegex = '(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/ ]{11})'
         videoId = re.findall(idRegex, msg)
 
