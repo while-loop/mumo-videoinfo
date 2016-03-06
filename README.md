@@ -5,4 +5,7 @@ The plugin extracts messages sent to the server and checks for YouTube video IDs
 `channelName :: videoTitle`
 The plugin supports channel messages (non recursive) and private messages.
 
+Example usage:
 
+
+![Example usage](http://anthonyalves.science/assets/videoinfo.png)
