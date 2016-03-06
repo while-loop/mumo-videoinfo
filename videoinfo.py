@@ -36,6 +36,7 @@
 #
 
 from mumo_module import (commaSeperatedIntegers,
+                         commaSeperatedBool,
                          MumoModule)
 
 import urllib2, re, json
@@ -45,36 +46,51 @@ import urllib2, re, json
 class videoinfo(MumoModule):
     default_config = {'videoinfo':(
                                 ('servers', commaSeperatedIntegers, []),
+                                ),
+                                lambda x: re.match('(all)|(server_\d+)', x):(
+                                    ('message', str, "this is a fake message only; if you omit this line mumo won't load this module because of an error 'ValueError: too many values to unpack'; don't know why :/"),
+                                    ('reactonregisteredonly', commaSeperatedBool, [True])
                                 )
                     }
-    
+
     def __init__(self, name, manager, configuration = None):
         MumoModule.__init__(self, name, manager, configuration)
         self.murmur = manager.getMurmurModule()
 
-        
-        
+
+
     def connected(self):
         manager = self.manager()
         self.log().debug("Register [%s] callbacks", self.name())
 
         manager.subscribeServerCallbacks(self, self.cfg().videoinfo.servers or manager.SERVERS_ALL)
-    
+
     def disconnected(self): pass
-    
+
     def sendMessage(self, server, user, message, msg):
         if message.channels: # sent to a channel
             server.sendMessageChannel(user.channel, False, msg)
         else: # sent as a private message
             server.sendMessage(message.sessions[0], msg)
-        
-        
+
+
     #
     #--- Server callback functions
     #
     def userTextMessage(self, server, user, message, current=None):
+        sid = server.id()
+
+        try:
+            scfg = getattr(self.cfg(), 'server_%d' % sid)
+        except AttributeError:
+            scfg = self.cfg().all
+
+        if scfg.reactonregisteredonly and user.userid == -1:
+            self.log().debug('\'reactonregisteredonly\' is enabled; Ignored unregistered user \'%s\' (session id \'%s\')' % (user.name, user.session))
+            return
+
         msg = message.text.strip()
-        
+
         # http://stackoverflow.com/a/6904504
         idRegex = '(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/ ]{11})'
         videoId = re.findall(idRegex, msg)
@@ -94,28 +110,15 @@ class videoinfo(MumoModule):
         title = videoInfo['title']
         channel = videoInfo['author_name']
         msg = channel + " :: " + title
-        
+
         # send the video information to the channel/user
         self.sendMessage(server, user, message, msg)
-         
-    
+
+
     def userConnected(self, server, state, context = None): pass
     def userDisconnected(self, server, state, context = None): pass
     def userStateChanged(self, server, state, context = None): pass
-    
+
     def channelCreated(self, server, state, context = None): pass
     def channelRemoved(self, server, state, context = None): pass
     def channelStateChanged(self, server, state, context = None): pass
-
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
