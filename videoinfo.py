@@ -48,8 +48,7 @@ class videoinfo(MumoModule):
                                 ('servers', commaSeperatedIntegers, []),
                                 ),
                                 lambda x: re.match('(all)|(server_\d+)', x):(
-                                    ('message', str, "this is a fake message only; if you omit this line mumo won't load this module because of an error 'ValueError: too many values to unpack'; don't know why :/"),
-                                    ('reactonregisteredonly', commaSeperatedBool, [True])
+                                    ('reactonregisteredonly', commaSeperatedBool, [True]),
                                 )
                     }
 
