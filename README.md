@@ -6,6 +6,8 @@ The plugin extracts messages sent to the server and checks for YouTube video IDs
 The plugin supports channel messages (non recursive) and private messages. 
 It also has a feature to only run if the user sending the video is registered.
 
+NOTE: If you want to get the title of ANY webpage, check out [title-for-mumo](https://github.com/while-loop/title-for-mumo).
+
 Example usage:
 
 
