@@ -71,6 +71,18 @@ class videoinfo(MumoModule):
             server.sendMessageChannel(user.channel, False, msg)
         else: # sent as a private message
             server.sendMessage(message.sessions[0], msg)
+            
+    def parseVideoInfo(self, videocontent):
+        tagRegex = '&tag=([^\n^\r^&]*)'
+        
+        channel = re.findall(tagRegex.replace("tag", "author"), videocontent)[0]
+        title = re.findall(tagRegex.replace("tag", "title"), videocontent)[0]
+        
+        # clean up the text
+        channel = urllib2.unquote(channel).replace("+", " ")
+        title = urllib2.unquote(title).replace("+", " ")
+
+        return channel, title
 
 
     #
@@ -98,16 +110,15 @@ class videoinfo(MumoModule):
             # Unable to get ID of a video
             return
 
-        # Get video information from noembed (noembed doesn't require a YouTube API key to get video info)
-        endpoint = 'https://noembed.com/embed?url=https://www.youtube.com/watch?v=' + videoId[0]
+        # Get video information from youtube
+        endpoint = 'http://youtube.com/get_video_info?video_id=' + videoId[0]
         sock = urllib2.urlopen(endpoint)
-        # create the json object
-        videoInfo = json.loads(sock.read())
+        # get the file contents
+        videostr = sock.read()
+        channel, title = self.parseVideoInfo(videostr)
         sock.close()
 
         # extract and create the server message
-        title = videoInfo['title']
-        channel = videoInfo['author_name']
         msg = channel + " :: " + title
 
         # send the video information to the channel/user
